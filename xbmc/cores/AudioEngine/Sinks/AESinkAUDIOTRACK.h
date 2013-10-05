@@ -70,4 +70,6 @@ private:
   double             m_audiotrackbuffer_sec;
   double             m_audiotrack_empty_sec;
   double             m_audiotrack_empty_sec_tweaks;
+  
+  bool		    	 m_libMediaPassThroughHack;
 };

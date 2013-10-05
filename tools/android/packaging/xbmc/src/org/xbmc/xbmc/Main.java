@@ -1,4 +1,4 @@
-package org.xbmc.xbmc;
+package org.xbmc.xbmclibmedia;
 
 import android.app.NativeActivity;
 import android.content.Intent;

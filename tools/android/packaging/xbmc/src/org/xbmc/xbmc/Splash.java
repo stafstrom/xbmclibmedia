@@ -1,4 +1,4 @@
-package org.xbmc.xbmc;
+package org.xbmc.xbmclibmedia;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -239,7 +239,7 @@ public class Splash extends Activity {
   protected void startXBMC() {
     // Run XBMC
     Intent intent = getIntent();
-    intent.setClass(this, org.xbmc.xbmc.Main.class);
+    intent.setClass(this, org.xbmc.xbmclibmedia.Main.class);
     startActivity(intent);
     finish();
   }
@@ -255,7 +255,7 @@ public class Splash extends Activity {
         .getRunningTasks(Integer.MAX_VALUE);
     for (RunningTaskInfo task : tasks)
       if (task.topActivity.toString().equalsIgnoreCase(
-          "ComponentInfo{org.xbmc.xbmc/org.xbmc.xbmc.Main}")) {
+          "ComponentInfo{org.xbmc.xbmc/org.xbmc.xbmclibmedia.Main}")) {
         // XBMC already running; just activate it
         startXBMC();
         return;

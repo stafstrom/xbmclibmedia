@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- BEGIN_INCLUDE(manifest) -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.xbmc.xbmc"
+    package="org.xbmc.xbmclibmedia"
     android:versionCode="15"
-    android:versionName="13.0-ALPHA9" >
+    android:versionName="13.0-ALPHA9-libmedia" >
 
     <!-- This is the platform API where NativeActivity was introduced. -->
     <uses-sdk android:minSdkVersion="14" />
@@ -60,7 +60,7 @@
             android:name=".Main"
             android:configChanges="orientation|keyboard|keyboardHidden|navigation"
             android:finishOnTaskLaunch="true"
-            android:label="XBMC"
+            android:label="XBMClibmedia"
             android:launchMode="singleInstance"
             android:screenOrientation="sensorLandscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >

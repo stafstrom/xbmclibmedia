@@ -23,6 +23,7 @@
 #include "Utils/AERingBuffer.h"
 #include "android/activity/XBMCApp.h"
 #include "settings/Settings.h"
+#include "settings/AdvancedSettings.h"
 #if defined(HAS_LIBAMCODEC)
 #include "utils/AMLUtils.h"
 #endif
@@ -103,6 +104,8 @@ bool CAESinkAUDIOTRACK::Initialize(AEAudioFormat &format, std::string &device)
     m_passthrough = true;
   else
     m_passthrough = false;
+
+  m_libMediaPassThroughHack = g_advancedSettings.m_libMediaPassThroughHack;
 
 #if defined(HAS_LIBAMCODEC)
   if (CSettings::Get().GetBool("videoplayer.useamcodec"))
@@ -330,13 +333,27 @@ void CAESinkAUDIOTRACK::Process()
   m_sinkbuffer_sec_per_byte = 1.0 / (double)(m_sink_frameSize * m_format.m_sampleRate);
   m_sinkbuffer_sec = (double)m_sinkbuffer_sec_per_byte * m_sinkbuffer->GetMaxSize();
 
+  // libmedia hack patch
+  jint streamType = GetStaticIntField(jenv, "AudioManager", "STREAM_MUSIC");;
+  if( m_passthrough && m_libMediaPassThroughHack )
+	  streamType = GetStaticIntField(jenv, "AudioManager", "STREAM_VOICE_CALL");
+  
   jobject joAudioTrack = jenv->NewObject(jcAudioTrack, jmInit,
-    GetStaticIntField(jenv, "AudioManager", "STREAM_MUSIC"),
-    m_format.m_sampleRate,
-    channelConfig,
-    audioFormat,
-    min_buffer_size,
-    GetStaticIntField(jenv, "AudioTrack", "MODE_STREAM"));
+	  streamType,
+ 	  m_format.m_sampleRate,
+	  channelConfig,
+	  audioFormat,
+	  min_buffer_size,
+	  GetStaticIntField(jenv, "AudioTrack", "MODE_STREAM"));
+  // libmedia hack patch end
+
+  // jobject joAudioTrack = jenv->NewObject(jcAudioTrack, jmInit,
+  //   GetStaticIntField(jenv, "AudioManager", "STREAM_MUSIC"),
+  //   m_format.m_sampleRate,
+  //   channelConfig,
+  //   audioFormat,
+  //   min_buffer_size,
+  //   GetStaticIntField(jenv, "AudioTrack", "MODE_STREAM"));
 
   // Set the initial volume
   float volume = 1.0;
