@@ -255,7 +255,7 @@ public class Splash extends Activity {
         .getRunningTasks(Integer.MAX_VALUE);
     for (RunningTaskInfo task : tasks)
       if (task.topActivity.toString().equalsIgnoreCase(
-          "ComponentInfo{org.xbmc.xbmc/org.xbmc.xbmclibmedia.Main}")) {
+          "ComponentInfo{org.xbmc.xbmclibmedia/org.xbmc.xbmclibmedia.Main}")) {
         // XBMC already running; just activate it
         startXBMC();
         return;
