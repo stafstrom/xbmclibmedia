@@ -335,10 +335,15 @@
 
 #if defined(TARGET_ANDROID)
 #include "android/activity/XBMCApp.h"
+#include "android/activity/AndroidFeatures.h"
 #endif
 
 #ifdef TARGET_WINDOWS
 #include "utils/Environment.h"
+#endif
+
+#if defined(HAS_LIBAMCODEC)
+#include "utils/AMLUtils.h"
 #endif
 
 using namespace std;
@@ -1571,7 +1576,15 @@ void CApplication::OnSettingChanged(const CSetting *setting)
   if (settingId == "lookandfeel.skin" ||
       settingId == "lookandfeel.font" ||
       settingId == "lookandfeel.skincolors")
-    CApplicationMessenger::Get().ExecBuiltIn("ReloadSkin");
+  {
+    // if the skin changes and the current theme is not the default one, reset
+    // the theme to the default value (which will also change lookandfeel.skincolors
+    // which in turn will reload the skin
+    if (settingId == "lookandfeel.skin" && CSettings::Get().GetString("lookandfeel.skintheme") != "SKINDEFAULT")
+      CSettings::Get().SetString("lookandfeel.skintheme", "SKINDEFAULT");
+    else
+      CApplicationMessenger::Get().ExecBuiltIn("ReloadSkin");
+  }
   else if (settingId == "lookandfeel.skintheme")
   {
     // also set the default color theme
@@ -1679,6 +1692,32 @@ bool CApplication::OnSettingUpdate(CSetting* &setting, const char *oldSettingId,
       return true;
     }
   }
+#if defined(HAS_LIBAMCODEC)
+  else if (settingId == "videoplayer.useamcodec")
+  {
+    // Do not permit amcodec to be used on non-aml platforms.
+    // The setting will be hidden but the default value is true,
+    // so change it to false.
+    if (!aml_present())
+    {
+      CSettingBool *useamcodec = (CSettingBool*)setting;
+      useamcodec->SetValue(false);
+    }
+  }
+#endif
+#if defined(TARGET_ANDROID)
+  else if (settingId == "videoplayer.usemediacodec")
+  {
+    // Do not permit MediaCodec to be used Android platforms that do not have it.
+    // The setting will be hidden but the default value is true,
+    // so change it to false.
+    if (CAndroidFeatures::GetVersion() < 16)
+    {
+      CSettingBool *usemediacodec = (CSettingBool*)setting;
+      usemediacodec->SetValue(false);
+    }
+  }
+#endif
 
   return false;
 }

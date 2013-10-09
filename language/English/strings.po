@@ -12357,7 +12357,12 @@ msgctxt "#35102"
 msgid "Disable joystick when this device is present"
 msgstr ""
 
-#empty strings from id 35103 to 35499
+#: system/settings/settings.xml
+msgctxt "#35103"
+msgid "Enable system keys in fullscreen"
+msgstr ""
+
+#empty strings from id 35104 to 35499
 
 #: Unknown
 msgctxt "#35500"
@@ -14263,6 +14268,7 @@ msgctxt "#36509"
 msgid "Monoscopic - 2D"
 msgstr ""
 
+#empty strings from id 36510 to 36519
 #reserved strings for 3d modes 36509 - 36520
 
 #: system/settings/settings.xml
@@ -14279,6 +14285,8 @@ msgstr ""
 msgctxt "#36522"
 msgid "Use preferred mode"
 msgstr ""
+
+#empty string with id 36523
 
 #: system/settings/settings.xml
 msgctxt "#36524"
@@ -14324,6 +14332,8 @@ msgstr ""
 msgctxt "#36532"
 msgid "Same as movie"
 msgstr ""
+
+#empty strings from id 36533 to 36534
 
 #: guilib/StereoscopicsManager.cpp
 msgctxt "#36535"
@@ -14375,6 +14385,7 @@ msgctxt "#36544"
 msgid "Enable hardware decoding of video files."
 msgstr ""
 
+#empty strings from id 36545 to 36999
 #reserved strings 365XX
 
 #: xbmc/cores/dvdplayer/DVDInputStreams/DVDInputStreamNavigator.cpp
@@ -14432,4 +14443,9 @@ msgstr ""
 #: system/settings/rbp.xml
 msgctxt "#37018"
 msgid "Boost centre channel when downmixing"
+msgstr ""
+
+#: system/settings/settings.xml
+msgctxt "#37019"
+msgid "Enables system keys like printscreen, alt-tab and volume keys when in fullscreen"
 msgstr ""
