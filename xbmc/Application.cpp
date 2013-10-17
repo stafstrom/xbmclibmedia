@@ -706,6 +706,7 @@ bool CApplication::Create()
   CLog::Log(LOGNOTICE, "The executable running is: %s", executable.c_str());
   CLog::Log(LOGNOTICE, "Local hostname: %s", m_network->GetHostName().c_str());
   CLog::Log(LOGNOTICE, "Log File is located: %sxbmc.log", g_advancedSettings.m_logFolder.c_str());
+  CRegExp::LogCheckUtf8Support();
   CLog::Log(LOGNOTICE, "-----------------------------------------------------------------------");
 
   CStdString strExecutablePath;
@@ -757,9 +758,6 @@ bool CApplication::Create()
   CProfilesManager::Get().CreateProfileFolders();
 
   update_emu_environ();//apply the GUI settings
-
-  // initialize our charset converter
-  g_charsetConverter.reset();
 
   // Load the langinfo to have user charset <-> utf-8 conversion
   CStdString strLanguage = CSettings::Get().GetString("locale.language");
@@ -1966,8 +1964,6 @@ void CApplication::UnloadSkin(bool forReload /* = false */)
   g_fontManager.Clear();
 
   g_colorManager.Clear();
-
-  g_charsetConverter.reset();
 
   g_infoManager.Clear();
 
@@ -5740,8 +5736,6 @@ bool CApplication::SetLanguage(const CStdString &strLanguage)
         CLog::Log(LOGERROR, "No ttf font found but needed: %s", strFontSet.c_str());
     }
     CSettings::Get().SetString("locale.language", strNewLanguage);
-
-    g_charsetConverter.reset();
 
     if (!g_localizeStrings.Load("special://xbmc/language/", strNewLanguage))
       return false;
