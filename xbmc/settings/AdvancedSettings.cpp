@@ -28,7 +28,7 @@
 #include "utils/LangCodeExpander.h"
 #include "LangInfo.h"
 #include "profiles/ProfilesManager.h"
-#include "settings/Setting.h"
+#include "settings/lib/Setting.h"
 #include "settings/Settings.h"
 #include "utils/StringUtils.h"
 #include "utils/SystemInfo.h"
@@ -115,12 +115,6 @@ void CAdvancedSettings::Initialize()
   m_ac3Gain = 12.0f;
   m_audioApplyDrc = true;
   m_dvdplayerIgnoreDTSinWAV = false;
-  m_audioResample = 0;
-  m_allowTranscode44100 = false;
-  m_audioForceDirectSound = false;
-  m_audioAudiophile = false;
-  m_allChannelStereo = false;
-  m_streamSilence = false;
 
   //default hold time of 25 ms, this allows a 20 hertz sine to pass undistorted
   m_limiterHold = 0.025f;
@@ -178,6 +172,7 @@ void CAdvancedSettings::Initialize()
   m_DXVAForceProcessorRenderer = true;
   m_DXVANoDeintProcForProgressive = false;
   m_videoFpsDetect = 1;
+  m_videoBusyDialogDelay_ms = 500;
   m_stagefrightConfig.useAVCcodec = -1;
   m_stagefrightConfig.useVC1codec = -1;
   m_stagefrightConfig.useVPXcodec = -1;
@@ -366,7 +361,7 @@ void CAdvancedSettings::Initialize()
 
   m_iPVRTimeCorrection             = 0;
   m_iPVRInfoToggleInterval         = 3000;
-  m_bPVRShowEpgInfoOnEpgItemSelect = true;
+  m_bPVRShowEpgInfoOnEpgItemSelect = false;
   m_iPVRMinVideoCacheLevel         = 5;
   m_iPVRMinAudioCacheLevel         = 10;
   m_bPVRCacheInDvdPlayer           = true;
@@ -377,7 +372,7 @@ void CAdvancedSettings::Initialize()
   m_measureRefreshrate = false;
 
   m_cacheMemBufferSize = 1024 * 1024 * 20;
-  m_alwaysForceBuffer = false;
+  m_networkBufferMode = 0; // Default (buffer all internet streams/filesystems)
   // the following setting determines the readRate of a player data
   // as multiply of the default data read rate
   m_readBufferFactor = 1.0f;
@@ -448,7 +443,7 @@ bool CAdvancedSettings::Load()
   ParseSettingsFile(CProfilesManager::Get().GetUserDataItem("advancedsettings.xml"));
 
   // Add the list of disc stub extensions (if any) to the list of video extensions
-  if (!m_discStubExtensions.IsEmpty())
+  if (!m_discStubExtensions.empty())
     m_videoExtensions += "|" + m_discStubExtensions;
 
   return true;
@@ -505,14 +500,6 @@ void CAdvancedSettings::ParseSettingsFile(const CStdString &file)
     XMLUtils::GetInt(pElement, "percentseekbackward", m_musicPercentSeekBackward, -100, 0);
     XMLUtils::GetInt(pElement, "percentseekforwardbig", m_musicPercentSeekForwardBig, 0, 100);
     XMLUtils::GetInt(pElement, "percentseekbackwardbig", m_musicPercentSeekBackwardBig, -100, 0);
-
-    XMLUtils::GetInt(pElement, "resample", m_audioResample, 0, 192000);
-    XMLUtils::GetBoolean(pElement, "allowtranscode44100", m_allowTranscode44100);
-    XMLUtils::GetBoolean(pElement, "forceDirectSound", m_audioForceDirectSound);
-    XMLUtils::GetBoolean(pElement, "audiophile", m_audioAudiophile);
-    XMLUtils::GetBoolean(pElement, "allchannelstereo", m_allChannelStereo);
-    XMLUtils::GetBoolean(pElement, "streamsilence", m_streamSilence);
-    XMLUtils::GetString(pElement, "transcodeto", m_audioTranscodeTo);
 
     TiXmlElement* pAudioExcludes = pElement->FirstChildElement("excludefromlisting");
     if (pAudioExcludes)
@@ -723,6 +710,10 @@ void CAdvancedSettings::ParseSettingsFile(const CStdString &file)
     //0 = disable fps detect, 1 = only detect on timestamps with uniform spacing, 2 detect on all timestamps
     XMLUtils::GetInt(pElement, "fpsdetect", m_videoFpsDetect, 0, 2);
 
+    // controls the delay, in milliseconds, until
+    // the busy dialog is shown when starting video playback.
+    XMLUtils::GetInt(pElement, "busydialogdelayms", m_videoBusyDialogDelay_ms, 0, 1000);
+
     // Store global display latency settings
     TiXmlElement* pVideoLatency = pElement->FirstChildElement("latency");
     if (pVideoLatency)
@@ -818,7 +809,7 @@ void CAdvancedSettings::ParseSettingsFile(const CStdString &file)
     XMLUtils::GetInt(pElement, "curlretries", m_curlretries, 0, 10);
     XMLUtils::GetBoolean(pElement,"disableipv6", m_curlDisableIPV6);
     XMLUtils::GetUInt(pElement, "cachemembuffersize", m_cacheMemBufferSize);
-    XMLUtils::GetBoolean(pElement, "alwaysforcebuffer", m_alwaysForceBuffer);
+    XMLUtils::GetUInt(pElement, "buffermode", m_networkBufferMode, 0, 3);
     XMLUtils::GetFloat(pElement, "readbufferfactor", m_readBufferFactor);
   }
 
@@ -1028,7 +1019,7 @@ void CAdvancedSettings::ParseSettingsFile(const CStdString &file)
       if (pTo)
         strTo = pTo->FirstChild()->Value();
 
-      if (!strFrom.IsEmpty() && !strTo.IsEmpty())
+      if (!strFrom.empty() && !strTo.empty())
       {
         CLog::Log(LOGDEBUG,"  Registering substition pair:");
         CLog::Log(LOGDEBUG,"    From: [%s]", strFrom.c_str());
@@ -1038,7 +1029,7 @@ void CAdvancedSettings::ParseSettingsFile(const CStdString &file)
       else
       {
         // error message about missing tag
-        if (strFrom.IsEmpty())
+        if (strFrom.empty())
           CLog::Log(LOGERROR,"  Missing <from> tag");
         else
           CLog::Log(LOGERROR,"  Missing <to> tag");
@@ -1335,8 +1326,8 @@ void CAdvancedSettings::GetCustomExtensions(TiXmlElement *pRootElement, CStdStri
     StringUtils::SplitString(extraExtensions,"|",exts);
     for (unsigned int i=0;i<exts.size();++i)
     {
-      int iPos = extensions.Find(exts[i]);
-      if (iPos == -1)
+      size_t iPos = extensions.find(exts[i]);
+      if (iPos == std::string::npos)
         continue;
       extensions.erase(iPos,exts[i].size()+1);
     }
@@ -1384,8 +1375,7 @@ void CAdvancedSettings::SetExtraLogsFromAddon(ADDON::IAddon* addon)
   m_extraLogLevels = 0;
   for (int i=LOGMASKBIT;i<31;++i)
   {
-    CStdString str;
-    str.Format("bit%i", i-LOGMASKBIT+1);
+    CStdString str = StringUtils::Format("bit%i", i-LOGMASKBIT+1);
     if (addon->GetSetting(str) == "true")
       m_extraLogLevels |= (1 << i);
   }

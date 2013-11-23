@@ -108,7 +108,7 @@ bool CGUIWindowPictures::OnMessage(CGUIMessage& message)
   case GUI_MSG_WINDOW_INIT:
     {
       // is this the first time accessing this window?
-      if (m_vecItems->GetPath() == "?" && message.GetStringParam().IsEmpty())
+      if (m_vecItems->GetPath() == "?" && message.GetStringParam().empty())
         message.SetStringParam(CMediaSourceSettings::Get().GetDefaultSource("pictures"));
 
       m_dlgProgress = (CGUIDialogProgress*)g_windowManager.GetWindow(WINDOW_DIALOG_PROGRESS);
@@ -214,6 +214,8 @@ void CGUIWindowPictures::UpdateButtons()
 
 void CGUIWindowPictures::OnPrepareFileItems(CFileItemList& items)
 {
+  CGUIMediaWindow::OnPrepareFileItems(items);
+
   for (int i=0;i<items.Size();++i )
     if (items[i]->GetLabel().Equals("folder.jpg"))
       items.Remove(i);
@@ -309,7 +311,7 @@ bool CGUIWindowPictures::GetDirectory(const CStdString &strDirectory, CFileItemL
     return false;
 
   CStdString label;
-  if (items.GetLabel().IsEmpty() && m_rootDir.IsSource(items.GetPath(), CMediaSourceSettings::Get().GetSources("pictures"), &label)) 
+  if (items.GetLabel().empty() && m_rootDir.IsSource(items.GetPath(), CMediaSourceSettings::Get().GetSources("pictures"), &label)) 
     items.SetLabel(label);
 
   return true;
@@ -470,7 +472,7 @@ void CGUIWindowPictures::GetContextButtons(int itemNumber, CContextButtons &butt
 
   if (item && !item->GetProperty("pluginreplacecontextitems").asBoolean())
   {
-    if ( m_vecItems->IsVirtualDirectoryRoot() && item)
+    if ( m_vecItems->IsVirtualDirectoryRoot() || m_vecItems->GetPath() == "sources://pictures/" )
     {
       CGUIDialogContextMenu::GetContextButtons("pictures", item, buttons);
     }
@@ -514,13 +516,10 @@ void CGUIWindowPictures::GetContextButtons(int itemNumber, CContextButtons &butt
 bool CGUIWindowPictures::OnContextButton(int itemNumber, CONTEXT_BUTTON button)
 {
   CFileItemPtr item = (itemNumber >= 0 && itemNumber < m_vecItems->Size()) ? m_vecItems->Get(itemNumber) : CFileItemPtr();
-  if (m_vecItems->IsVirtualDirectoryRoot() && item)
+  if (CGUIDialogContextMenu::OnContextButton("pictures", item, button))
   {
-    if (CGUIDialogContextMenu::OnContextButton("pictures", item, button))
-    {
-      Update("");
-      return true;
-    }
+    Update("");
+    return true;
   }
   switch (button)
   {

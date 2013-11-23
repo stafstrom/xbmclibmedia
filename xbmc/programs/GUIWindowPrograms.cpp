@@ -65,7 +65,7 @@ bool CGUIWindowPrograms::OnMessage(CGUIMessage& message)
       m_dlgProgress = (CGUIDialogProgress*)g_windowManager.GetWindow(WINDOW_DIALOG_PROGRESS);
 
       // is this the first time accessing this window?
-      if (m_vecItems->GetPath() == "?" && message.GetStringParam().IsEmpty())
+      if (m_vecItems->GetPath() == "?" && message.GetStringParam().empty())
         message.SetStringParam(CMediaSourceSettings::Get().GetDefaultSource("programs"));
 
       return CGUIMediaWindow::OnMessage(message);
@@ -103,7 +103,7 @@ void CGUIWindowPrograms::GetContextButtons(int itemNumber, CContextButtons &butt
   CFileItemPtr item = m_vecItems->Get(itemNumber);
   if (item && !item->GetProperty("pluginreplacecontextitems").asBoolean())
   {
-    if ( m_vecItems->IsVirtualDirectoryRoot() )
+    if ( m_vecItems->IsVirtualDirectoryRoot() || m_vecItems->GetPath() == "sources://programs/" )
     {
       CGUIDialogContextMenu::GetContextButtons("programs", item, buttons);
     }
@@ -124,13 +124,10 @@ bool CGUIWindowPrograms::OnContextButton(int itemNumber, CONTEXT_BUTTON button)
 {
   CFileItemPtr item = (itemNumber >= 0 && itemNumber < m_vecItems->Size()) ? m_vecItems->Get(itemNumber) : CFileItemPtr();
 
-  if (item && m_vecItems->IsVirtualDirectoryRoot())
+  if (CGUIDialogContextMenu::OnContextButton("programs", item, button))
   {
-    if (CGUIDialogContextMenu::OnContextButton("programs", item, button))
-    {
-      Update("");
-      return true;
-    }
+    Update("");
+    return true;
   }
   switch (button)
   {

@@ -20,6 +20,7 @@
 
 #include "GUILabelControl.h"
 #include "utils/CharsetConverter.h"
+#include "utils/StringUtils.h"
 
 using namespace std;
 
@@ -35,8 +36,6 @@ CGUILabelControl::CGUILabelControl(int parentID, int controlID, float posX, floa
   m_startHighlight = m_endHighlight = 0;
   m_startSelection = m_endSelection = 0;
   m_minWidth = 0;
-  if ((labelInfo.align & XBFONT_RIGHT) && m_width)
-    m_posX -= m_width;
 }
 
 CGUILabelControl::~CGUILabelControl(void)
@@ -275,7 +274,7 @@ bool CGUILabelControl::OnMessage(CGUIMessage& message)
 
 CStdString CGUILabelControl::ShortenPath(const CStdString &path)
 {
-  if (m_width == 0 || path.IsEmpty())
+  if (m_width == 0 || path.empty())
     return path;
 
   char cDelim = '\0';
@@ -296,7 +295,8 @@ CStdString CGUILabelControl::ShortenPath(const CStdString &path)
   CStdString workPath(path);
   // remove trailing slashes
   if (workPath.size() > 3)
-    if (workPath.Right(3).Compare("://") != 0 && workPath.Right(2).Compare(":\\") != 0)
+    if (!StringUtils::EndsWith(workPath, "://") &&
+        !StringUtils::EndsWith(workPath, ":\\"))
       if (nPos == workPath.size() - 1)
       {
         workPath.erase(workPath.size() - 1);

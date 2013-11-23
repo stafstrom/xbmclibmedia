@@ -20,7 +20,7 @@
 
 #include "MusicThumbLoader.h"
 #include "FileItem.h"
-#include "TextureCache.h"
+#include "TextureDatabase.h"
 #include "music/tags/MusicInfoTag.h"
 #include "music/tags/MusicInfoTagLoaderFactory.h"
 #include "music/infoscanner/MusicInfoScanner.h"
@@ -159,7 +159,7 @@ bool CMusicThumbLoader::LoadItemLookup(CFileItem* pItem)
       if (!FillThumb(*pItem, false)) // Check for user thumbs but ignore folder thumbs
       {
         // No user thumb, use embedded art
-        CStdString thumb = CTextureCache::GetWrappedImageURL(pItem->GetPath(), "music");
+        CStdString thumb = CTextureUtils::GetWrappedImageURL(pItem->GetPath(), "music");
         pItem->SetArt("thumb", thumb);
       }
     }
@@ -178,14 +178,14 @@ bool CMusicThumbLoader::FillThumb(CFileItem &item, bool folderThumbs /* = true *
   if (item.HasArt("thumb"))
     return true;
   CStdString thumb = GetCachedImage(item, "thumb");
-  if (thumb.IsEmpty())
+  if (thumb.empty())
   {
     thumb = item.GetUserMusicThumb(false, folderThumbs);
-    if (!thumb.IsEmpty())
+    if (!thumb.empty())
       SetCachedImage(item, "thumb", thumb);
   }
   item.SetArt("thumb", thumb);
-  return !thumb.IsEmpty();
+  return !thumb.empty();
 }
 
 bool CMusicThumbLoader::FillLibraryArt(CFileItem &item)

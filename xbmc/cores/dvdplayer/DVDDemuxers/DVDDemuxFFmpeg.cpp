@@ -42,11 +42,13 @@
 #include "settings/AdvancedSettings.h"
 #include "settings/Settings.h"
 #include "filesystem/File.h"
+#include "filesystem/CurlFile.h"
 #include "filesystem/Directory.h"
 #include "utils/log.h"
 #include "threads/Thread.h"
 #include "threads/SystemClock.h"
 #include "utils/TimeUtils.h"
+#include "utils/StringUtils.h"
 #include "URL.h"
 
 void CDemuxStreamAudioFFmpeg::GetStreamInfo(std::string& strInfo)
@@ -121,10 +123,8 @@ void ff_avutil_log(void* ptr, int level, const char* format, va_list va)
     default            : type = LOGDEBUG;   break;
   }
 
-  CStdString message, prefix;
-  message.FormatV(format, va);
-
-  prefix.Format("ffmpeg[%X]: ", threadId);
+  CStdString message = StringUtils::FormatV(format, va);
+  CStdString prefix = StringUtils::Format("ffmpeg[%X]: ", threadId);
   if(avc)
   {
     if(avc->item_name)
@@ -153,7 +153,7 @@ static void ff_flush_avutil_log_buffers(void)
      add a new buffer next time it writes to the log */
   std::map<uintptr_t, CStdString>::iterator it;
   for (it = g_logbuffer.begin(); it != g_logbuffer.end(); )
-    if ((*it).second.IsEmpty())
+    if ((*it).second.empty())
       g_logbuffer.erase(it++);
     else
       ++it;
@@ -307,7 +307,7 @@ bool CDVDDemuxFFmpeg::Open(CDVDInputStream* pInput)
     }
     if (result < 0 && m_dllAvFormat.avformat_open_input(&m_pFormatContext, strFile.c_str(), iformat, &options) < 0 )
     {
-      CLog::Log(LOGDEBUG, "Error, could not open file %s", strFile.c_str());
+      CLog::Log(LOGDEBUG, "Error, could not open file %s", CURL::GetRedacted(strFile).c_str());
       Dispose();
       m_dllAvUtil.av_dict_free(&options);
       return false;
@@ -352,7 +352,7 @@ bool CDVDDemuxFFmpeg::Open(CDVDInputStream* pInput)
         pd.buf_size = m_dllAvFormat.avio_read(m_ioContext, pd.buf, m_ioContext->max_packet_size ? m_ioContext->max_packet_size : m_ioContext->buffer_size);
         if (pd.buf_size <= 0)
         {
-          CLog::Log(LOGERROR, "%s - error reading from input stream, %s", __FUNCTION__, strFile.c_str());
+          CLog::Log(LOGERROR, "%s - error reading from input stream, %s", __FUNCTION__, CURL::GetRedacted(strFile).c_str());
           return false;
         }
         memset(pd.buf+pd.buf_size, 0, AVPROBE_PADDING_SIZE);
@@ -415,7 +415,7 @@ bool CDVDDemuxFFmpeg::Open(CDVDInputStream* pInput)
 
       if (!iformat)
       {
-        CLog::Log(LOGERROR, "%s - error probing input format, %s", __FUNCTION__, strFile.c_str());
+        CLog::Log(LOGERROR, "%s - error probing input format, %s", __FUNCTION__, CURL::GetRedacted(strFile).c_str());
         return false;
       }
       else
@@ -432,7 +432,7 @@ bool CDVDDemuxFFmpeg::Open(CDVDInputStream* pInput)
 
     if (m_dllAvFormat.avformat_open_input(&m_pFormatContext, strFile.c_str(), iformat, NULL) < 0)
     {
-      CLog::Log(LOGERROR, "%s - Error, could not open file %s", __FUNCTION__, strFile.c_str());
+      CLog::Log(LOGERROR, "%s - Error, could not open file %s", __FUNCTION__, CURL::GetRedacted(strFile).c_str());
       Dispose();
       return false;
     }
@@ -461,7 +461,7 @@ bool CDVDDemuxFFmpeg::Open(CDVDInputStream* pInput)
     int iErr = m_dllAvFormat.avformat_find_stream_info(m_pFormatContext, NULL);
     if (iErr < 0)
     {
-      CLog::Log(LOGWARNING,"could not find codec parameters for %s", strFile.c_str());
+      CLog::Log(LOGWARNING,"could not find codec parameters for %s", CURL::GetRedacted(strFile).c_str());
       if (m_pInput->IsStreamType(DVDSTREAM_TYPE_DVD)
       ||  m_pInput->IsStreamType(DVDSTREAM_TYPE_BLURAY)
       || (m_pFormatContext->nb_streams == 1 && m_pFormatContext->streams[0]->codec->codec_id == AV_CODEC_ID_AC3))
@@ -620,6 +620,11 @@ AVDictionary *CDVDDemuxFFmpeg::GetFFMpegOptionsFromURL(const CURL &url)
 
     if (!headers.empty())
       m_dllAvUtil.av_dict_set(&options, "headers", headers.c_str(), 0);
+
+    std::string cookies;
+    if (XFILE::CCurlFile::GetCookies(url, cookies))
+      m_dllAvUtil.av_dict_set(&options, "cookies", cookies.c_str(), 0);
+
   }
   return options;
 }
@@ -1436,7 +1441,7 @@ void CDVDDemuxFFmpeg::GetStreamCodecName(int iStreamId, CStdString &strName)
       if (strlen(fourcc) == 4)
       {
         strName = fourcc;
-        strName.MakeLower();
+        StringUtils::ToLower(strName);
         return;
       }
     }

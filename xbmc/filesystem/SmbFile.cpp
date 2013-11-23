@@ -229,7 +229,7 @@ void CSMB::Purge()
 void CSMB::PurgeEx(const CURL& url)
 {
   CSingleLock lock(*this);
-  CStdString strShare = url.GetFileName().substr(0, url.GetFileName().Find('/'));
+  CStdString strShare = url.GetFileName().substr(0, url.GetFileName().find('/'));
 
 #ifdef TARGET_WINDOWS
   if (m_strLastShare.length() > 0 && (m_strLastShare != strShare || m_strLastHost != url.GetHostName()))
@@ -407,9 +407,9 @@ bool CSmbFile::Open(const CURL& url)
     // write error to logfile
 #ifdef TARGET_WINDOWS
     int nt_error = smb.ConvertUnixToNT(errno);
-    CLog::Log(LOGINFO, "FileSmb->Open: Unable to open file : '%s'\nunix_err:'%x' nt_err : '%x' error : '%s'", strFileName.c_str(), errno, nt_error, get_friendly_nt_error_msg(nt_error));
+    CLog::Log(LOGINFO, "FileSmb->Open: Unable to open file : '%s'\nunix_err:'%x' nt_err : '%x' error : '%s'", CURL::GetRedacted(strFileName).c_str(), errno, nt_error, get_friendly_nt_error_msg(nt_error));
 #else
-    CLog::Log(LOGINFO, "FileSmb->Open: Unable to open file : '%s'\nunix_err:'%x' error : '%s'", strFileName.c_str(), errno, strerror(errno));
+    CLog::Log(LOGINFO, "FileSmb->Open: Unable to open file : '%s'\nunix_err:'%x' error : '%s'", CURL::GetRedacted(strFileName).c_str(), errno, strerror(errno));
 #endif
     return false;
   }
@@ -749,9 +749,9 @@ bool CSmbFile::OpenForWrite(const CURL& url, bool bOverWrite)
 
 bool CSmbFile::IsValidFile(const CStdString& strFileName)
 {
-  if (strFileName.Find('/') == -1 || /* doesn't have sharename */
-      strFileName.Right(2) == "/." || /* not current folder */
-      strFileName.Right(3) == "/..")  /* not parent folder */
+  if (strFileName.find('/') == std::string::npos || /* doesn't have sharename */
+      StringUtils::EndsWith(strFileName, "/.") || /* not current folder */
+      StringUtils::EndsWith(strFileName, "/.."))  /* not parent folder */
       return false;
   return true;
 }

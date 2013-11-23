@@ -25,8 +25,8 @@
 #include "filesystem/File.h"
 #include "filesystem/SpecialProtocol.h"
 #include "guilib/WindowIDs.h"
-#include "settings/Setting.h"
 #include "settings/Settings.h"
+#include "settings/lib/Setting.h"
 #include "utils/URIUtils.h"
 #include "utils/log.h"
 #include "utils/StringUtils.h"
@@ -80,13 +80,13 @@ CSkinInfo::CSkinInfo(const cp_extension_t *ext)
   else
   { // no resolutions specified -> backward compatibility
     CStdString defaultWide = CAddonMgr::Get().GetExtValue(ext->configuration, "@defaultwideresolution");
-    if (defaultWide.IsEmpty())
+    if (defaultWide.empty())
       defaultWide = CAddonMgr::Get().GetExtValue(ext->configuration, "@defaultresolution");
     TranslateResolution(defaultWide, m_defaultRes);
   }
 
   CStdString str = CAddonMgr::Get().GetExtValue(ext->configuration, "@effectslowdown");
-  if (!str.IsEmpty())
+  if (!str.empty())
     m_effectsSlowDown = (float)atof(str.c_str());
   else
     m_effectsSlowDown = 1.f;
@@ -152,7 +152,7 @@ CStdString CSkinInfo::GetSkinPath(const CStdString& strFile, RESOLUTION_INFO *re
     return ""; // invalid skin
 
   CStdString strPathToUse = Path();
-  if (!strBaseDir.IsEmpty())
+  if (!strBaseDir.empty())
     strPathToUse = strBaseDir;
 
   // if the caller doesn't care about the resolution just use a temporary
@@ -305,16 +305,17 @@ void CSkinInfo::SettingOptionsSkinColorsFiller(const CSetting *setting, std::vec
     CFileItemPtr pItem = items[i];
     if (!pItem->m_bIsFolder && !StringUtils::EqualsNoCase(pItem->GetLabel(), "defaults.xml"))
     { // not the default one
-      vecColors.push_back(pItem->GetLabel().Mid(0, pItem->GetLabel().size() - 4));
+      vecColors.push_back(pItem->GetLabel().substr(0, pItem->GetLabel().size() - 4));
     }
   }
   sort(vecColors.begin(), vecColors.end(), sortstringbyname());
-
   for (int i = 0; i < (int) vecColors.size(); ++i)
-  {
     list.push_back(make_pair(vecColors[i], vecColors[i]));
 
-    if (StringUtils::EqualsNoCase(vecColors[i], settingValue))
+  // try to find the best matching value
+  for (vector< pair<string, string> >::const_iterator it = list.begin(); it != list.end(); ++it)
+  {
+    if (StringUtils::EqualsNoCase(it->second, settingValue))
       current = settingValue;
   }
 }
@@ -417,10 +418,12 @@ void CSkinInfo::SettingOptionsSkinSoundFiller(const CSetting *setting, std::vect
 
   sort(vecSoundSkins.begin(), vecSoundSkins.end(), sortstringbyname());
   for (unsigned int i = 0; i < vecSoundSkins.size(); i++)
-  {
     list.push_back(make_pair(vecSoundSkins[i], vecSoundSkins[i]));
 
-    if (StringUtils::EqualsNoCase(vecSoundSkins[i], settingValue))
+  // try to find the best matching value
+  for (vector< pair<string, string> >::const_iterator it = list.begin(); it != list.end(); ++it)
+  {
+    if (StringUtils::EqualsNoCase(it->second, settingValue))
       current = settingValue;
   }
 }
@@ -444,10 +447,12 @@ void CSkinInfo::SettingOptionsSkinThemesFiller(const CSetting *setting, std::vec
 
   // sort the themes for GUI and list them
   for (int i = 0; i < (int) vecTheme.size(); ++i)
-  {
     list.push_back(make_pair(vecTheme[i], vecTheme[i]));
 
-    if (StringUtils::EqualsNoCase(vecTheme[i], settingValue))
+  // try to find the best matching value
+  for (vector< pair<string, string> >::const_iterator it = list.begin(); it != list.end(); ++it)
+  {
+    if (StringUtils::EqualsNoCase(it->second, settingValue))
       current = settingValue;
   }
 }

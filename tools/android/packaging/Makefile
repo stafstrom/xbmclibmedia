@@ -5,7 +5,7 @@ OBJS = libcurl.so \
   libafpclient.so  \
   libplist.so libshairplay.so \
   libxbogg.so libxbvorbis.so libxbvorbisfile.so libxbFLAC.so libxbmpeg2.so \
-  libxbmpeg2convert.so libnfs.so libass.so
+  libxbmpeg2convert.so libnfs.so libass.so libbluray.so
 
 PLATFORM_OBJS =
 EXCLUDED_ADDONS = screensaver.rsxs.euphoria visualization.dxspectrum visualization.milkdrop visualization.projectm
@@ -68,12 +68,13 @@ package: extras
 	@echo "$(XBMCROOT)/xbmcapp-$(CPU)-debug.apk created"
 
 extras: libs
-	rm -rf xbmc/assets/python2.6/lib/
+	rm -rf xbmc/assets
 	mkdir -p xbmc/assets xbmc/res xbmc/res/raw xbmc/assets/python2.6/lib/
 	cp -rfp $(PREFIX)/share/xbmc/* ./xbmc/assets
 	find `pwd`/xbmc/assets/ -depth -name ".git" -exec rm -rf {} \;
 	find `pwd`/xbmc/assets/system/ -name "*.so" -exec rm {} \;
 	find `pwd`/xbmc/assets/addons/skin.*/media/* -depth -not -iname "Textures.xbt" -exec rm -rf {} \;
+	find `pwd`/xbmc/assets/system/keymaps/ -depth -name "joystick*.xml" ! -name "joystick.xml" -exec rm {} \;
 	@echo "native_arch=$(ARCH)" > xbmc/res/raw/xbmc.properties
 	cd xbmc/assets/addons; rm -rf $(EXCLUDED_ADDONS)
 	cp -rfp $(PREFIX)/lib/python2.6 xbmc/assets/python2.6/lib/
@@ -96,7 +97,7 @@ libs: $(PREFIX)/lib/xbmc/libxbmc.so
 	install -p $(GDBPATH) ./xbmc/libs/$(CPU)/gdbserver
 	echo "set solib-search-path ./obj/local/$(CPU)" > ./xbmc/libs/$(CPU)/gdb.setup
 	echo "directory $(TOOLCHAIN)/sysroot/usr/include $(NDKROOT)/sources/android/native_app_glue" \
-	     "$(NDKROOT)/sources/cxx-stl/gnu-libstdc++/include/$(GCC_VERSION) $(XBMCROOT)  $(PREFIX)/include jni" >> ./xbmc/libs/$(CPU)/gdb.setup
+	     "$(NDKROOT)/sources/cxx-stl/gnu-libstdc++/$(GCC_VERSION)/include $(XBMCROOT)  $(PREFIX)/include jni" >> ./xbmc/libs/$(CPU)/gdb.setup
 	cp -fp xbmc/libs/$(CPU)/* xbmc/lib/$(CPU)
 
 $(PREFIX)/lib/xbmc/libxbmc.so: $(SRCLIBS)

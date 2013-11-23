@@ -25,6 +25,7 @@
 #include "settings/Settings.h"
 #include "utils/log.h"
 #include "utils/URIUtils.h"
+#include "utils/StringUtils.h"
 #include "threads/SingleLock.h"
 #include "threads/Atomics.h"
 #include "guilib/GraphicContext.h"
@@ -35,8 +36,7 @@ static void libass_log(int level, const char *fmt, va_list args, void *data)
 {
   if(level >= 5)
     return;
-  CStdString log;
-  log.FormatV(fmt, args);
+  CStdString log = StringUtils::FormatV(fmt, args);
   CLog::Log(LOGDEBUG, "CDVDSubtitlesLibass: [ass] %s", log.c_str());
 }
 
@@ -136,7 +136,7 @@ bool CDVDSubtitlesLibass::DecodeDemuxPkt(char* data, int size, double start, dou
   return true;
 }
 
-bool CDVDSubtitlesLibass::CreateTrack(char* buf)
+bool CDVDSubtitlesLibass::CreateTrack(char* buf, int size)
 {
   CSingleLock lock(m_section);
   if(!m_library)
@@ -147,7 +147,7 @@ bool CDVDSubtitlesLibass::CreateTrack(char* buf)
 
   CLog::Log(LOGINFO, "SSA Parser: Creating m_track from SSA buffer");
 
-  m_track = m_dll.ass_read_memory(m_library, buf, 0, 0);
+  m_track = m_dll.ass_read_memory(m_library, buf, size, 0);
   if(m_track == NULL)
     return false;
 

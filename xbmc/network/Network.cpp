@@ -28,9 +28,8 @@
 #include "utils/log.h"
 #ifdef TARGET_WINDOWS
 #include "utils/SystemInfo.h"
+#include "win32/WIN32Util.h"
 #endif
-
-using namespace std;
 
 /* slightly modified in_ether taken from the etherboot project (http://sourceforge.net/projects/etherboot) */
 bool in_ether (const char *bufp, unsigned char *addr)
@@ -169,8 +168,8 @@ CStdString CNetwork::GetHostName(void)
 
 CNetworkInterface* CNetwork::GetFirstConnectedInterface()
 {
-   vector<CNetworkInterface*>& ifaces = GetInterfaceList();
-   vector<CNetworkInterface*>::const_iterator iter = ifaces.begin();
+   std::vector<CNetworkInterface*>& ifaces = GetInterfaceList();
+   std::vector<CNetworkInterface*>::const_iterator iter = ifaces.begin();
    while (iter != ifaces.end())
    {
       CNetworkInterface* iface = *iter;
@@ -186,8 +185,8 @@ bool CNetwork::HasInterfaceForIP(unsigned long address)
 {
    unsigned long subnet;
    unsigned long local;
-   vector<CNetworkInterface*>& ifaces = GetInterfaceList();
-   vector<CNetworkInterface*>::const_iterator iter = ifaces.begin();
+   std::vector<CNetworkInterface*>& ifaces = GetInterfaceList();
+   std::vector<CNetworkInterface*>::const_iterator iter = ifaces.begin();
    while (iter != ifaces.end())
    {
       CNetworkInterface* iface = *iter;
@@ -213,7 +212,7 @@ bool CNetwork::IsAvailable(bool wait /*= false*/)
     //       wait for 5 seconds here.
   }
 
-  vector<CNetworkInterface*>& ifaces = GetInterfaceList();
+  std::vector<CNetworkInterface*>& ifaces = GetInterfaceList();
   return (ifaces.size() != 0);
 }
 
@@ -224,8 +223,8 @@ bool CNetwork::IsConnected()
 
 CNetworkInterface* CNetwork::GetInterfaceByName(CStdString& name)
 {
-   vector<CNetworkInterface*>& ifaces = GetInterfaceList();
-   vector<CNetworkInterface*>::const_iterator iter = ifaces.begin();
+   std::vector<CNetworkInterface*>& ifaces = GetInterfaceList();
+   std::vector<CNetworkInterface*>::const_iterator iter = ifaces.begin();
    while (iter != ifaces.end())
    {
       CNetworkInterface* iface = *iter;
@@ -418,7 +417,7 @@ bool CNetwork::PingHost(unsigned long ipaddr, unsigned short port, unsigned int 
   if (err_msg && *err_msg)
   {
 #ifdef TARGET_WINDOWS
-    CStdString sock_err = WUSysMsg(WSAGetLastError());
+    CStdString sock_err = CWIN32Util::WUSysMsg(WSAGetLastError());
 #else
     CStdString sock_err = strerror(errno);
 #endif
@@ -452,7 +451,7 @@ int CreateTCPServerSocket(const int port, const bool bindLocal, const int backlo
     if (setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, (const char*)&no, sizeof(no)) < 0)
     {
 #ifdef _MSC_VER
-      CStdString sock_err = WUSysMsg(WSAGetLastError());
+      CStdString sock_err = CWIN32Util::WUSysMsg(WSAGetLastError());
 #else
       CStdString sock_err = strerror(errno);
 #endif
@@ -471,7 +470,7 @@ int CreateTCPServerSocket(const int port, const bool bindLocal, const int backlo
     else
       s6->sin6_addr = in6addr_any;
 
-    if (::bind( sock, (struct sockaddr *) &addr, sizeof(struct sockaddr_in6)) < 0)
+    if (bind( sock, (struct sockaddr *) &addr, sizeof(struct sockaddr_in6)) < 0)
     {
       closesocket(sock);
       sock = -1;
@@ -494,7 +493,7 @@ int CreateTCPServerSocket(const int port, const bool bindLocal, const int backlo
     else
       s4->sin_addr.s_addr = htonl(INADDR_ANY);
 
-    if (::bind( sock, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0)
+    if (bind( sock, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0)
     {
       closesocket(sock);
       CLog::Log(LOGERROR, "%s Server: Failed to bind ipv4 serversocket", callerName);

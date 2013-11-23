@@ -20,6 +20,7 @@
 
 #include "LanguageHook.h"
 #include "swig.h"
+#include "utils/StringUtils.h"
 
 #include <string>
 
@@ -160,9 +161,9 @@ namespace PythonBindings
       {
           PyObject *tracebackModule;
 
-          msg.AppendFormat("Error Type: %s\n", PyString_AsString(pystring));
+          msg += StringUtils::Format("Error Type: %s\n", PyString_AsString(pystring));
           if (PyObject_Str(exc_value))
-            msg.AppendFormat("Error Contents: %s\n", PyString_AsString(PyObject_Str(exc_value)));
+            msg += StringUtils::Format("Error Contents: %s\n", PyString_AsString(PyObject_Str(exc_value)));
 
           tracebackModule = PyImport_ImportModule((char*)"traceback");
           if (tracebackModule != NULL)
@@ -173,7 +174,7 @@ namespace PythonBindings
             emptyString = PyString_FromString("");
             strRetval = PyObject_CallMethod(emptyString, (char*)"join", (char*)"O", tbList);
             
-            msg.Format("%s%s", msg.c_str(),PyString_AsString(strRetval));
+            msg = StringUtils::Format("%s%s", msg.c_str(),PyString_AsString(strRetval));
 
             Py_DECREF(tbList);
             Py_DECREF(emptyString);
@@ -197,23 +198,23 @@ namespace PythonBindings
     SetMessage("%s",msg.c_str());
   }
 
-  XBMCAddon::AddonClass* doretrieveApiInstance(const PyHolder* pythonType, const TypeInfo* typeInfo, const char* expectedType, 
+  XBMCAddon::AddonClass* doretrieveApiInstance(const PyHolder* pythonObj, const TypeInfo* typeInfo, const char* expectedType, 
                               const char* methodNamespacePrefix, const char* methodNameForErrorString) throw (XBMCAddon::WrongTypeException)
   {
-    if (pythonType == NULL || pythonType->magicNumber != XBMC_PYTHON_TYPE_MAGIC_NUMBER)
+    if (pythonObj->magicNumber != XBMC_PYTHON_TYPE_MAGIC_NUMBER)
       throw XBMCAddon::WrongTypeException("Non api type passed to \"%s\" in place of the expected type \"%s.\"",
                                           methodNameForErrorString, expectedType);
     if (!isParameterRightType(typeInfo->swigType,expectedType,methodNamespacePrefix))
     {
       // maybe it's a child class
       if (typeInfo->parentType)
-        return doretrieveApiInstance(pythonType, typeInfo->parentType,expectedType, 
+        return doretrieveApiInstance(pythonObj, typeInfo->parentType,expectedType, 
                                      methodNamespacePrefix, methodNameForErrorString);
       else
         throw XBMCAddon::WrongTypeException("Incorrect type passed to \"%s\", was expecting a \"%s\" but received a \"%s\"",
                                  methodNameForErrorString,expectedType,typeInfo->swigType);
     }
-    return ((PyHolder*)pythonType)->pSelf;
+    return ((PyHolder*)pythonObj)->pSelf;
   }
 
   /**

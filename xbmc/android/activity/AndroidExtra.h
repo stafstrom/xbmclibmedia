@@ -21,6 +21,11 @@
  
  /*** Extra's not found in the Android NDK ***/
 
+// missing in early NDKs, is present in r9b+
+extern float AMotionEvent_getAxisValue(const AInputEvent* motion_event, int32_t axis, size_t pointer_index);
+extern typeof(AMotionEvent_getAxisValue) *p_AMotionEvent_getAxisValue;
+#define AMotionEvent_getAxisValue (*p_AMotionEvent_getAxisValue)
+
  //Additional defines from android.view.KeyEvent (http://developer.android.com/reference/android/view/KeyEvent.html)
 #define AKEYCODE_ESCAPE 111
 #define AKEYCODE_FORWARD_DEL 112
@@ -32,3 +37,26 @@
 #define AKEYCODE_FORWARD 125
 #define AKEYCODE_MEDIA_PLAY 126
 #define AKEYCODE_MEDIA_EJECT 129
+
+//Additional defines from android.view.MotionEvent (http://developer.android.com/reference/android/view/MotionEvent.html)
+#define AMOTION_EVENT_ACTION_SCROLL 0x08
+
+#define AINPUT_SOURCE_CLASS_JOYSTICK 0x00000010
+
+#define AINPUT_SOURCE_GAMEPAD  (0x00000400 | AINPUT_SOURCE_CLASS_BUTTON)
+#define AINPUT_SOURCE_JOYSTICK (0x01000000 | AINPUT_SOURCE_CLASS_JOYSTICK)
+
+// 1st stick X, Y
+#define AMOTION_EVENT_AXIS_X 0
+#define AMOTION_EVENT_AXIS_Y 1
+// 2nd stick X, Y
+#define AMOTION_EVENT_AXIS_Z  11
+#define AMOTION_EVENT_AXIS_RZ 14
+// d-pad X, Y
+#define AMOTION_EVENT_AXIS_HAT_X 15
+#define AMOTION_EVENT_AXIS_HAT_Y 16
+// trigger left, right
+#define AMOTION_EVENT_AXIS_LTRIGGER 17
+#define AMOTION_EVENT_AXIS_RTRIGGER 18
+// mouse vertical wheel
+#define AMOTION_EVENT_AXIS_VSCROLL 0x09

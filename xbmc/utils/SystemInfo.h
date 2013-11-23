@@ -22,7 +22,7 @@
 
 #include "md5.h"
 #include "InfoLoader.h"
-#include "settings/ISubSettings.h"
+#include "settings/lib/ISubSettings.h"
 
 #define KB  (1024)          // 1 KiloByte (1KB)   1024 Byte (2^10 Byte)
 #define MB  (1024*KB)       // 1 MegaByte (1MB)   1024 KB (2^10 KB)
@@ -83,10 +83,10 @@ public:
   enum WindowsVersion
   {
     WindowsVersionUnknown = -1, // Undetected, unsupported Windows version or OS in not Windows
-    WindowsVersionWinXP,        // Windows XP, Windows Server 2003 (R2), Windows Home Server
     WindowsVersionVista,        // Windows Vista, Windows Server 2008
     WindowsVersionWin7,         // Windows 7, Windows Server 2008 R2
     WindowsVersionWin8,         // Windows 8, Windows Server 2012
+    WindowsVersionWin8_1,       // Windows 8.1
     /* Insert new Windows versions here, when they'll be known */
     WindowsVersionFuture = 100  // Future Windows version, not known to code
   };

@@ -23,6 +23,7 @@
 #include "utils/log.h"
 #include "utils/StdString.h"
 #include "utils/JSONVariantParser.h"
+#include "utils/StringUtils.h"
 #include "JSONRPC.h"
 #include "PlayerOperations.h"
 #include "PlaylistOperations.h"
@@ -38,6 +39,8 @@
 #include "PVROperations.h"
 #include "ProfilesOperations.h"
 #include "FavouritesOperations.h"
+#include "TextureOperations.h"
+#include "SettingsOperations.h"
 
 using namespace std;
 using namespace JSONRPC;
@@ -124,6 +127,7 @@ JsonRpcMethodMap CJSONServiceDescription::m_methodMaps[] = {
   { "VideoLibrary.GetTVShows",                      CVideoLibrary::GetTVShows },
   { "VideoLibrary.GetTVShowDetails",                CVideoLibrary::GetTVShowDetails },
   { "VideoLibrary.GetSeasons",                      CVideoLibrary::GetSeasons },
+  { "VideoLibrary.GetSeasonDetails",                CVideoLibrary::GetSeasonDetails },
   { "VideoLibrary.GetEpisodes",                     CVideoLibrary::GetEpisodes },
   { "VideoLibrary.GetEpisodeDetails",               CVideoLibrary::GetEpisodeDetails },
   { "VideoLibrary.GetMusicVideos",                  CVideoLibrary::GetMusicVideos },
@@ -132,7 +136,9 @@ JsonRpcMethodMap CJSONServiceDescription::m_methodMaps[] = {
   { "VideoLibrary.GetRecentlyAddedEpisodes",        CVideoLibrary::GetRecentlyAddedEpisodes },
   { "VideoLibrary.GetRecentlyAddedMusicVideos",     CVideoLibrary::GetRecentlyAddedMusicVideos },
   { "VideoLibrary.SetMovieDetails",                 CVideoLibrary::SetMovieDetails },
+  { "VideoLibrary.SetMovieSetDetails",              CVideoLibrary::SetMovieSetDetails },
   { "VideoLibrary.SetTVShowDetails",                CVideoLibrary::SetTVShowDetails },
+  { "VideoLibrary.SetSeasonDetails",                CVideoLibrary::SetSeasonDetails },
   { "VideoLibrary.SetEpisodeDetails",               CVideoLibrary::SetEpisodeDetails },
   { "VideoLibrary.SetMusicVideoDetails",            CVideoLibrary::SetMusicVideoDetails },
   { "VideoLibrary.RemoveMovie",                     CVideoLibrary::RemoveMovie },
@@ -154,6 +160,8 @@ JsonRpcMethodMap CJSONServiceDescription::m_methodMaps[] = {
   { "GUI.ActivateWindow",                           CGUIOperations::ActivateWindow },
   { "GUI.ShowNotification",                         CGUIOperations::ShowNotification },
   { "GUI.SetFullscreen",                            CGUIOperations::SetFullscreen },
+  { "GUI.SetStereoscopicMode",                      CGUIOperations::SetStereoscopicMode },
+  { "GUI.GetStereoscopicModes",                     CGUIOperations::GetStereoscopicModes },
 
 // PVR operations
   { "PVR.GetProperties",                            CPVROperations::GetProperties },
@@ -161,6 +169,8 @@ JsonRpcMethodMap CJSONServiceDescription::m_methodMaps[] = {
   { "PVR.GetChannelGroupDetails",                   CPVROperations::GetChannelGroupDetails },
   { "PVR.GetChannels",                              CPVROperations::GetChannels },
   { "PVR.GetChannelDetails",                        CPVROperations::GetChannelDetails },
+  { "PVR.GetBroadcasts",                            CPVROperations::GetBroadcasts },
+  { "PVR.GetBroadcastDetails",                      CPVROperations::GetBroadcastDetails },
   { "PVR.Record",                                   CPVROperations::Record },
   { "PVR.Scan",                                     CPVROperations::Scan },
 
@@ -201,6 +211,18 @@ JsonRpcMethodMap CJSONServiceDescription::m_methodMaps[] = {
 // Favourites operations
   { "Favourites.GetFavourites",                     CFavouritesOperations::GetFavourites },
   { "Favourites.AddFavourite",                      CFavouritesOperations::AddFavourite },
+
+// Textures operations
+  { "Textures.GetTextures",                         CTextureOperations::GetTextures },
+  { "Textures.RemoveTexture",                       CTextureOperations::RemoveTexture },
+
+// Settings operations
+  { "Settings.GetSections",                         CSettingsOperations::GetSections },
+  { "Settings.GetCategories",                       CSettingsOperations::GetCategories },
+  { "Settings.GetSettings",                         CSettingsOperations::GetSettings },
+  { "Settings.GetSettingValue",                     CSettingsOperations::GetSettingValue },
+  { "Settings.SetSettingValue",                     CSettingsOperations::SetSettingValue },
+  { "Settings.ResetSettingValue",                   CSettingsOperations::ResetSettingValue },
 
 // XBMC operations
   { "XBMC.GetInfoLabels",                           CXBMCOperations::GetInfoLabels },
@@ -602,7 +624,7 @@ JSONRPC_STATUS JSONSchemaTypeDefinition::Check(const CVariant &value, CVariant &
   // Let's check the type of the provided parameter
   if (!IsType(value, type))
   {
-    errorMessage.Format("Invalid type %s received", ValueTypeToString(value.type()));
+    errorMessage = StringUtils::Format("Invalid type %s received", ValueTypeToString(value.type()));
     errorData["message"] = errorMessage.c_str();
     return InvalidParams;
   }
@@ -647,7 +669,7 @@ JSONRPC_STATUS JSONSchemaTypeDefinition::Check(const CVariant &value, CVariant &
       if (status != OK)
       {
         CLog::Log(LOGDEBUG, "JSONRPC: Value does not match extended type %s of type %s", extends.at(extendsIndex)->ID.c_str(), name.c_str());
-        errorMessage.Format("value does not match extended type %s", extends.at(extendsIndex)->ID.c_str(), name.c_str());
+        errorMessage = StringUtils::Format("value does not match extended type %s", extends.at(extendsIndex)->ID.c_str(), name.c_str());
         errorData["message"] = errorMessage.c_str();
         return status;
       }
@@ -665,11 +687,11 @@ JSONRPC_STATUS JSONSchemaTypeDefinition::Check(const CVariant &value, CVariant &
     {
       CLog::Log(LOGDEBUG, "JSONRPC: Number of array elements does not match minItems and/or maxItems in type %s", name.c_str());
       if (minItems > 0 && maxItems > 0)
-        errorMessage.Format("Between %d and %d array items expected but %d received", minItems, maxItems, value.size());
+        errorMessage = StringUtils::Format("Between %d and %d array items expected but %d received", minItems, maxItems, value.size());
       else if (minItems > 0)
-        errorMessage.Format("At least %d array items expected but only %d received", minItems, value.size());
+        errorMessage = StringUtils::Format("At least %d array items expected but only %d received", minItems, value.size());
       else
-        errorMessage.Format("Only %d array items expected but %d received", maxItems, value.size());
+        errorMessage = StringUtils::Format("Only %d array items expected but %d received", maxItems, value.size());
       errorData["message"] = errorMessage.c_str();
       return InvalidParams;
     }
@@ -689,7 +711,7 @@ JSONRPC_STATUS JSONSchemaTypeDefinition::Check(const CVariant &value, CVariant &
         if (status != OK)
         {
           CLog::Log(LOGDEBUG, "JSONRPC: Array element at index %u does not match in type %s", arrayIndex, name.c_str());
-          errorMessage.Format("array element at index %u does not match", arrayIndex);
+          errorMessage = StringUtils::Format("array element at index %u does not match", arrayIndex);
           errorData["message"] = errorMessage.c_str();
           return status;
         }
@@ -709,7 +731,7 @@ JSONRPC_STATUS JSONSchemaTypeDefinition::Check(const CVariant &value, CVariant &
       if (value.size() < items.size() || (value.size() != items.size() && additionalItems.size() == 0))
       {
         CLog::Log(LOGDEBUG, "JSONRPC: One of the array elements does not match in type %s", name.c_str());
-        errorMessage.Format("%d array elements expected but %d received", items.size(), value.size());
+        errorMessage = StringUtils::Format("%d array elements expected but %d received", items.size(), value.size());
         errorData["message"] = errorMessage.c_str();
         return InvalidParams;
       }
@@ -749,7 +771,7 @@ JSONRPC_STATUS JSONSchemaTypeDefinition::Check(const CVariant &value, CVariant &
           if (!ok)
           {
             CLog::Log(LOGDEBUG, "JSONRPC: Array contains non-conforming additional items in type %s", name.c_str());
-            errorMessage.Format("Array element at index %u does not match the \"additionalItems\" schema", arrayIndex);
+            errorMessage = StringUtils::Format("Array element at index %u does not match the \"additionalItems\" schema", arrayIndex);
             errorData["message"] = errorMessage.c_str();
             return InvalidParams;
           }
@@ -768,7 +790,7 @@ JSONRPC_STATUS JSONSchemaTypeDefinition::Check(const CVariant &value, CVariant &
           if (outputValue[checkingIndex] == outputValue[checkedIndex])
           {
             CLog::Log(LOGDEBUG, "JSONRPC: Not unique array element at index %u and %u in type %s", checkingIndex, checkedIndex, name.c_str());
-            errorMessage.Format("Array element at index %u is not unique (same as array element at index %u)", checkingIndex, checkedIndex);
+            errorMessage = StringUtils::Format("Array element at index %u is not unique (same as array element at index %u)", checkingIndex, checkedIndex);
             errorData["message"] = errorMessage.c_str();
             return InvalidParams;
           }
@@ -893,10 +915,10 @@ JSONRPC_STATUS JSONSchemaTypeDefinition::Check(const CVariant &value, CVariant &
     {
       CLog::Log(LOGDEBUG, "JSONRPC: Value does not lay between minimum and maximum in type %s", name.c_str());
       if (value.isDouble())
-        errorMessage.Format("Value between %f (%s) and %f (%s) expected but %f received", 
+        errorMessage = StringUtils::Format("Value between %f (%s) and %f (%s) expected but %f received", 
           minimum, exclusiveMinimum ? "exclusive" : "inclusive", maximum, exclusiveMaximum ? "exclusive" : "inclusive", numberValue);
       else
-        errorMessage.Format("Value between %d (%s) and %d (%s) expected but %d received", 
+        errorMessage = StringUtils::Format("Value between %d (%s) and %d (%s) expected but %d received", 
           (int)minimum, exclusiveMinimum ? "exclusive" : "inclusive", (int)maximum, exclusiveMaximum ? "exclusive" : "inclusive", (int)numberValue);
       errorData["message"] = errorMessage.c_str();
       return InvalidParams;
@@ -905,7 +927,7 @@ JSONRPC_STATUS JSONSchemaTypeDefinition::Check(const CVariant &value, CVariant &
     if ((HasType(type, IntegerValue) && divisibleBy > 0 && ((int)numberValue % divisibleBy) != 0))
     {
       CLog::Log(LOGDEBUG, "JSONRPC: Value does not meet divisibleBy requirements in type %s", name.c_str());
-      errorMessage.Format("Value should be divisible by %d but %d received", divisibleBy, (int)numberValue);
+      errorMessage = StringUtils::Format("Value should be divisible by %d but %d received", divisibleBy, (int)numberValue);
       errorData["message"] = errorMessage.c_str();
       return InvalidParams;
     }
@@ -918,7 +940,7 @@ JSONRPC_STATUS JSONSchemaTypeDefinition::Check(const CVariant &value, CVariant &
     if (size < minLength)
     {
       CLog::Log(LOGDEBUG, "JSONRPC: Value does not meet minLength requirements in type %s", name.c_str());
-      errorMessage.Format("Value should have a minimum length of %d but has a length of %d", minLength, size);
+      errorMessage = StringUtils::Format("Value should have a minimum length of %d but has a length of %d", minLength, size);
       errorData["message"] = errorMessage.c_str();
       return InvalidParams;
     }
@@ -926,7 +948,7 @@ JSONRPC_STATUS JSONSchemaTypeDefinition::Check(const CVariant &value, CVariant &
     if (maxLength >= 0 && size > maxLength)
     {
       CLog::Log(LOGDEBUG, "JSONRPC: Value does not meet maxLength requirements in type %s", name.c_str());
-      errorMessage.Format("Value should have a maximum length of %d but has a length of %d", maxLength, size);
+      errorMessage = StringUtils::Format("Value should have a maximum length of %d but has a length of %d", maxLength, size);
       errorData["message"] = errorMessage.c_str();
       return InvalidParams;
     }
@@ -1136,7 +1158,7 @@ JSONSchemaTypeDefinition::CJsonSchemaPropertiesMap::CJsonSchemaPropertiesMap()
 void JSONSchemaTypeDefinition::CJsonSchemaPropertiesMap::add(JSONSchemaTypeDefinitionPtr property)
 {
   CStdString name = property->name;
-  name = name.ToLower();
+  StringUtils::ToLower(name);
   m_propertiesmap[name] = property;
 }
 
@@ -1359,9 +1381,7 @@ bool CJSONServiceDescription::prepareDescription(std::string &description, CVari
 
   if (description.at(0) != '{')
   {
-    CStdString json;
-    json.Format("{%s}", description);
-    description = json;
+    description = StringUtils::Format("{%s}", description.c_str());
   }
 
   descriptionObject = CJSONVariantParser::Parse((const unsigned char *)description.c_str(), description.size());
@@ -1677,7 +1697,7 @@ JSONRPC_STATUS CJSONServiceDescription::Print(CVariant &result, ITransportLayer 
 
     if (filterByType == "method")
     {
-      name = name.ToLower();
+      StringUtils::ToLower(name);
 
       CJsonRpcMethodMap::JsonRpcMethodIterator methodIterator = m_actionMap.find(name);
       if (methodIterator != m_actionMap.end() &&
@@ -1689,7 +1709,8 @@ JSONRPC_STATUS CJSONServiceDescription::Print(CVariant &result, ITransportLayer 
     else if (filterByType == "namespace")
     {
       // append a . delimiter to make sure we check for a namespace
-      name = name.ToLower().append(".");
+      StringUtils::ToLower(name);
+      name.append(".");
 
       CJsonRpcMethodMap::JsonRpcMethodIterator methodIterator;
       CJsonRpcMethodMap::JsonRpcMethodIterator methodIteratorEnd = m_actionMap.end();
@@ -1991,7 +2012,7 @@ void CJSONServiceDescription::CJsonRpcMethodMap::clear()
 void CJSONServiceDescription::CJsonRpcMethodMap::add(const JsonRpcMethod &method)
 {
   CStdString name = method.name;
-  name = name.ToLower();
+  StringUtils::ToLower(name);
   m_actionmap[name] = method;
 }
 

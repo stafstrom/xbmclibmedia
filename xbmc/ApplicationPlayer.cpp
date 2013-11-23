@@ -20,6 +20,7 @@
 
 #include "ApplicationPlayer.h"
 #include "cores/IPlayer.h"
+#include "Application.h"
 
 #define VOLUME_MINIMUM 0.0f        // -60dB
 #define VOLUME_MAXIMUM 1.0f        // 0dB
@@ -279,33 +280,6 @@ int64_t CApplicationPlayer::GetTime() const
     return 0;
 }
 
-int CApplicationPlayer::GetPictureHeight()
-{
-  boost::shared_ptr<IPlayer> player = GetInternal();
-  if (player)
-    return player->GetPictureHeight();
-  else
-    return 0;
-}
-
-int CApplicationPlayer::GetPictureWidth()
-{
-  boost::shared_ptr<IPlayer> player = GetInternal();
-  if (player)
-    return player->GetPictureWidth();
-  else
-    return 0;
-}
-
-int CApplicationPlayer::GetSampleRate()
-{
-  boost::shared_ptr<IPlayer> player = GetInternal();
-  if (player)
-    return player->GetSampleRate();
-  else
-    return 0;
-}
-
 bool CApplicationPlayer::IsCaching() const
 {
   boost::shared_ptr<IPlayer> player = GetInternal();
@@ -338,15 +312,6 @@ int CApplicationPlayer::GetSubtitleCount()
   boost::shared_ptr<IPlayer> player = GetInternal();
   if (player)
     return player->GetSubtitleCount();
-  else
-    return 0;
-}
-
-int CApplicationPlayer::GetBitsPerSample()
-{
-  boost::shared_ptr<IPlayer> player = GetInternal();
-  if (player)
-    return player->GetBitsPerSample();
   else
     return 0;
 }
@@ -618,12 +583,6 @@ void CApplicationPlayer::GetGeneralInfo( CStdString& strVideoInfo)
     player->GetGeneralInfo(strVideoInfo);
 }
 
-bool CApplicationPlayer::GetCurrentSubtitle(CStdString& strSubtitle)
-{
-  boost::shared_ptr<IPlayer> player = GetInternal();
-  return (player && player->GetCurrentSubtitle(strSubtitle));
-}
-
 int  CApplicationPlayer::SeekChapter(int iChapter)
 {
   boost::shared_ptr<IPlayer> player = GetInternal();
@@ -693,7 +652,7 @@ void CApplicationPlayer::SetPlaySpeed(int iSpeed, bool bApplicationMuted)
   {
     if (m_iPlaySpeed == 1)
     { // restore volume
-      player->SetVolume(VOLUME_MAXIMUM);
+      player->SetVolume(g_application.GetVolume(false));
     }
     else
     { // mute volume

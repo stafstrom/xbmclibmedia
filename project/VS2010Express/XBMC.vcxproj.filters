@@ -307,6 +307,12 @@
     <Filter Include="cores\AudioEngine\Engines\ActiveAE">
       <UniqueIdentifier>{27f2c647-7b5f-4c49-b2e7-22bf360e58ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="listproviders">
+      <UniqueIdentifier>{1dfaf73b-2e8d-49d2-87c1-07b1ac203ba0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="settings\lib">
+      <UniqueIdentifier>{4de9ae04-448d-4ebe-bde5-5ec2a61270c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\xbmc\win32\pch.cpp">
@@ -358,9 +364,6 @@
       <Filter>cores\dvdplayer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\cores\dvdplayer\DVDOverlayRenderer.cpp">
-      <Filter>cores\dvdplayer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\xbmc\cores\dvdplayer\DVDPerformanceCounter.cpp">
       <Filter>cores\dvdplayer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\cores\dvdplayer\DVDPlayer.cpp">
@@ -1219,6 +1222,9 @@
     <ClCompile Include="..\..\xbmc\interfaces\json-rpc\XBMCOperations.cpp">
       <Filter>interfaces\json-rpc</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\interfaces\json-rpc\TextureOperations.cpp">
+      <Filter>interfaces\json-rpc</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\music\dialogs\GUIDialogMusicInfo.cpp">
       <Filter>music\dialogs</Filter>
     </ClCompile>
@@ -1595,6 +1601,9 @@
       <Filter>video\dialogs</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\video\dialogs\GUIDialogFullScreenInfo.cpp">
+      <Filter>video\dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\video\dialogs\GUIDialogSubtitles.cpp">
       <Filter>video\dialogs</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\video\dialogs\GUIDialogTeletext.cpp">
@@ -2316,15 +2325,6 @@
     <ClCompile Include="..\..\xbmc\cores\AudioEngine\AESinkFactory.cpp">
       <Filter>cores\AudioEngine</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xbmc\cores\AudioEngine\Engines\SoftAE\SoftAE.cpp">
-      <Filter>cores\AudioEngine\Engines</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\xbmc\cores\AudioEngine\Engines\SoftAE\SoftAESound.cpp">
-      <Filter>cores\AudioEngine\Engines</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\xbmc\cores\AudioEngine\Engines\SoftAE\SoftAEStream.cpp">
-      <Filter>cores\AudioEngine\Engines</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\xbmc\cores\AudioEngine\Sinks\AESinkDirectSound.cpp">
       <Filter>cores\AudioEngine\Sinks</Filter>
     </ClCompile>
@@ -2457,6 +2457,9 @@
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\dbwrappers\Database.cpp">
+      <Filter>dbwrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\dbwrappers\DatabaseQuery.cpp">
       <Filter>dbwrappers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\dbwrappers\dataset.cpp">
@@ -2848,7 +2851,7 @@
     <ClCompile Include="..\..\xbmc\test\TestFileItem.cpp">
       <Filter>test</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xbmc\test\TestTextureCache.cpp">
+    <ClCompile Include="..\..\xbmc\test\TestTextureUtils.cpp">
       <Filter>test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\interfaces\json-rpc\PVROperations.cpp">
@@ -2975,22 +2978,7 @@
     <ClCompile Include="..\..\xbmc\settings\windows\GUIControlSettings.cpp">
       <Filter>settings\windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xbmc\settings\ISetting.cpp">
-      <Filter>settings</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\xbmc\settings\Setting.cpp">
-      <Filter>settings</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\xbmc\settings\SettingCategoryAccess.cpp">
-      <Filter>settings</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\xbmc\settings\SettingConditions.cpp">
-      <Filter>settings</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\xbmc\settings\SettingControl.cpp">
-      <Filter>settings</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\xbmc\settings\SettingDependency.cpp">
       <Filter>settings</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\network\NetworkServices.cpp">
@@ -2999,19 +2987,10 @@
     <ClCompile Include="..\..\xbmc\utils\BooleanLogic.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xbmc\settings\SettingUpdate.cpp">
-      <Filter>settings</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\xbmc\settings\SettingsManager.cpp">
-      <Filter>settings</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\xbmc\settings\SettingAddon.cpp">
       <Filter>settings</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\settings\SettingPath.cpp">
-      <Filter>settings</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\xbmc\settings\SettingSection.cpp">
       <Filter>settings</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\interfaces\json-rpc\FavouritesOperations.cpp">
@@ -3064,9 +3043,6 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\ApplicationPlayer.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\SettingRequirement.cpp">
-      <Filter>settings</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\xbmc\interfaces\python\AddonPythonInvoker.cpp">
       <Filter>interfaces\python</Filter>
     </ClCompile>
@@ -3075,6 +3051,58 @@
     </ClCompile>
     <ClCompile Include="..\..\xbmc\windowing\WinEvents.cpp">
       <Filter>windowing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\playlists\SmartPlaylistFileItemListModifier.cpp">
+      <Filter>playlists</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\FileItemListModification.cpp" />
+    <ClCompile Include="..\..\xbmc\settings\lib\ISettingControl.cpp">
+      <Filter>settings\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\settings\lib\ISetting.cpp">
+      <Filter>settings\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\settings\lib\Setting.cpp">
+      <Filter>settings\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\settings\lib\SettingCategoryAccess.cpp">
+      <Filter>settings\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\settings\lib\SettingConditions.cpp">
+      <Filter>settings\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\settings\lib\SettingDependency.cpp">
+      <Filter>settings\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\settings\lib\SettingRequirement.cpp">
+      <Filter>settings\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\settings\lib\SettingSection.cpp">
+      <Filter>settings\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\settings\lib\SettingsManager.cpp">
+      <Filter>settings\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\settings\lib\SettingUpdate.cpp">
+      <Filter>settings\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\utils\CharsetDetection.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\VideoRenderers\OverlayRendererGUI.cpp">
+      <Filter>cores\VideoRenderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\interfaces\json-rpc\SettingsOperations.cpp">
+      <Filter>interfaces\json-rpc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\listproviders\IListProvider.cpp">
+      <Filter>listproviders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\listproviders\DirectoryProvider.cpp">
+      <Filter>listproviders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\listproviders\StaticProvider.cpp">
+      <Filter>listproviders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3130,9 +3158,6 @@
       <Filter>cores\dvdplayer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\cores\dvdplayer\DVDOverlayRenderer.h">
-      <Filter>cores\dvdplayer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\cores\dvdplayer\DVDPerformanceCounter.h">
       <Filter>cores\dvdplayer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\cores\dvdplayer\DVDPlayer.h">
@@ -4193,6 +4218,9 @@
     <ClInclude Include="..\..\xbmc\interfaces\json-rpc\XBMCOperations.h">
       <Filter>interfaces\json-rpc</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\interfaces\json-rpc\TextureOperations.h">
+      <Filter>interfaces\json-rpc</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\xbmc\music\dialogs\GUIDialogMusicInfo.h">
       <Filter>music\dialogs</Filter>
     </ClInclude>
@@ -4608,6 +4636,9 @@
       <Filter>video\dialogs</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\video\dialogs\GUIDialogFullScreenInfo.h">
+      <Filter>video\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\video\dialogs\GUIDialogSubtitles.h">
       <Filter>video\dialogs</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\video\dialogs\GUIDialogTeletext.h">
@@ -5377,15 +5408,6 @@
     <ClInclude Include="..\..\xbmc\cores\AudioEngine\AESinkFactory.h">
       <Filter>cores\AudioEngine</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\xbmc\cores\AudioEngine\Engines\SoftAE\SoftAE.h">
-      <Filter>cores\AudioEngine\Engines</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\cores\AudioEngine\Engines\SoftAE\SoftAESound.h">
-      <Filter>cores\AudioEngine\Engines</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\cores\AudioEngine\Engines\SoftAE\SoftAEStream.h">
-      <Filter>cores\AudioEngine\Engines</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\xbmc\cores\AudioEngine\Interfaces\AE.h">
       <Filter>cores\AudioEngine\Interfaces</Filter>
     </ClInclude>
@@ -5536,6 +5558,9 @@
       <Filter>video</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\dbwrappers\Database.h">
+      <Filter>dbwrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\dbwrappers\DatabaseQuery.h">
       <Filter>dbwrappers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\dbwrappers\dataset.h">
@@ -5852,12 +5877,6 @@
     <ClInclude Include="..\..\xbmc\utils\RssManager.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\xbmc\settings\ISettingsHandler.h">
-      <Filter>settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\settings\ISubSettings.h">
-      <Filter>settings</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\xbmc\settings\SkinSettings.h">
       <Filter>settings</Filter>
     </ClInclude>
@@ -5924,25 +5943,7 @@
     <ClInclude Include="..\..\xbmc\settings\windows\GUIControlSettings.h">
       <Filter>settings\windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\xbmc\settings\ISetting.h">
-      <Filter>settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\settings\ISettingCallback.h">
-      <Filter>settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\settings\Setting.h">
-      <Filter>settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\settings\SettingCategoryAccess.h">
-      <Filter>settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\settings\SettingConditions.h">
-      <Filter>settings</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\xbmc\settings\SettingControl.h">
-      <Filter>settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\settings\SettingDependency.h">
       <Filter>settings</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\network\NetworkServices.h">
@@ -5954,22 +5955,10 @@
     <ClInclude Include="..\..\xbmc\utils\IXmlDeserializable.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\xbmc\settings\SettingUpdate.h">
-      <Filter>settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\settings\SettingsManager.h">
-      <Filter>settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\settings\ISettingCreator.h">
-      <Filter>settings</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\xbmc\settings\SettingAddon.h">
       <Filter>settings</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\settings\SettingPath.h">
-      <Filter>settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\settings\SettingSection.h">
       <Filter>settings</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\interfaces\json-rpc\FavouritesOperations.h">
@@ -6028,9 +6017,6 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\ApplicationPlayer.h" />
-    <ClInclude Include="..\..\xbmc\settings\SettingRequirement.h">
-      <Filter>settings</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\xbmc\interfaces\python\AddonPythonInvoker.h">
       <Filter>interfaces\python</Filter>
     </ClInclude>
@@ -6039,6 +6025,77 @@
     </ClInclude>
     <ClInclude Include="..\..\xbmc\utils\uXstrings.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\IFileItemListModifier.h" />
+    <ClInclude Include="..\..\xbmc\playlists\SmartPlaylistFileItemListModifier.h">
+      <Filter>playlists</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\FileItemListModification.h" />
+    <ClInclude Include="..\..\xbmc\settings\lib\ISettingControl.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\ISetting.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\ISettingCallback.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\ISettingCreator.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\ISettingsHandler.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\ISubSettings.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\Setting.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\SettingCategoryAccess.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\SettingConditions.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\SettingDependency.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\SettingRequirement.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\SettingSection.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\SettingsManager.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\SettingUpdate.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\SettingDefinitions.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\settings\lib\ISettingControlCreator.h">
+      <Filter>settings\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\utils\CharsetDetection.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\VideoRenderers\OverlayRendererGUI.h">
+      <Filter>cores\VideoRenderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\interfaces\json-rpc\SettingsOperations.h">
+      <Filter>interfaces\json-rpc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\listproviders\IListProvider.h">
+      <Filter>listproviders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\listproviders\DirectoryProvider.h">
+      <Filter>listproviders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\listproviders\StaticProvider.h">
+      <Filter>listproviders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
