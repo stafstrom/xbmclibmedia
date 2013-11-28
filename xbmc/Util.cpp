@@ -1154,6 +1154,9 @@ int CUtil::GetMatchingSource(const CStdString& strPath1, VECSOURCES& VECSOURCES,
   // Check for special protocols
   CURL checkURL(strPath);
 
+  if (StringUtils::StartsWith(strPath, "special://skin/"))
+    return 1;
+
   // stack://
   if (checkURL.GetProtocol() == "stack")
     strPath.erase(0, 8); // remove the stack protocol
@@ -2154,26 +2157,26 @@ void CUtil::GetExternalStreamDetailsFromFilename(const CStdString& strVideo, con
           continue;
         }
       }
-      if (info.flag == 0x1111)
+
+      // try to recognize a flag
+      std::string flag_tmp(*it);
+      StringUtils::ToLower(flag_tmp);
+      if (!flag_tmp.compare("none"))
       {
-        std::string  flag_tmp(*it);
-        StringUtils::ToLower(flag_tmp);
-        if (!flag_tmp.compare("none"))
-        {
-          info.flag = CDemuxStream::FLAG_NONE;
-          continue;
-        }
-        else if (!flag_tmp.compare("default"))
-        {
-          info.flag = CDemuxStream::FLAG_DEFAULT;
-          continue;
-        }
-        else if (!flag_tmp.compare("forced"))
-        {
-          info.flag = CDemuxStream::FLAG_FORCED;
-          continue;
-        }
+        info.flag |= CDemuxStream::FLAG_NONE;
+        continue;
       }
+      else if (!flag_tmp.compare("default"))
+      {
+        info.flag |= CDemuxStream::FLAG_DEFAULT;
+        continue;
+      }
+      else if (!flag_tmp.compare("forced"))
+      {
+        info.flag |= CDemuxStream::FLAG_FORCED;
+        continue;
+      }
+
       name += " " + (*it);
     }
   }
@@ -2181,7 +2184,7 @@ void CUtil::GetExternalStreamDetailsFromFilename(const CStdString& strVideo, con
   name += g_localizeStrings.Get(21602); // External
   StringUtils::Trim(name);
   info.name = StringUtils::RemoveDuplicatedSpacesAndTabs(name);
-  if (info.flag == 0x1111)
+  if (info.flag == 0)
     info.flag = CDemuxStream::FLAG_NONE;
 
   CLog::Log(LOGDEBUG, "%s - Language = '%s' / Name = '%s' / Flag = '%u' from %s", __FUNCTION__, info.language.c_str(), info.name.c_str(), info.flag, strStream.c_str());
