@@ -794,6 +794,13 @@ void CSettings::InitializeDefaults()
   #endif
 #endif
 
+#if defined(TARGET_ANDROID) 
+  CStdString defaultAudioDeviceName;
+  CCoreAudioHardware::GetOutputDeviceName(defaultAudioDeviceName);
+  ((CSettingString*)m_settingsManager->GetSetting("audiooutput.audiodevice"))->SetDefault(defaultAudioDeviceName);
+  ((CSettingString*)m_settingsManager->GetSetting("audiooutput.passthroughdevice"))->SetDefault(defaultAudioDeviceName);
+#endif
+
 #if defined(TARGET_DARWIN)
   #if !defined(TARGET_DARWIN_IOS)
   CStdString defaultAudioDeviceName;
