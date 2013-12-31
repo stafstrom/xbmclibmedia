@@ -1,6 +1,6 @@
 /*
  *      Copyright (C) 2013 Team XBMC
- *      http://www.xbmc.org
+ *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -336,11 +336,15 @@ bool CDVDVideoCodecAndroidMediaCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptio
     case AV_CODEC_ID_H264:
       m_mime = "video/avc";
       m_formatname = "amc-h264";
-      m_bitstream = new CBitstreamConverter;
-      if (!m_bitstream->Open(m_hints.codec, (uint8_t*)m_hints.extradata, m_hints.extrasize, true))
+      // check for h264-avcC and convert to h264-annex-b
+      if (m_hints.extradata && *(uint8_t*)m_hints.extradata == 1)
       {
-        SAFE_DELETE(m_bitstream);
-        return false;
+        m_bitstream = new CBitstreamConverter;
+        if (!m_bitstream->Open(m_hints.codec, (uint8_t*)m_hints.extradata, m_hints.extrasize, true))
+        {
+          SAFE_DELETE(m_bitstream);
+          return false;
+        }
       }
       break;
     case AV_CODEC_ID_VC1:
