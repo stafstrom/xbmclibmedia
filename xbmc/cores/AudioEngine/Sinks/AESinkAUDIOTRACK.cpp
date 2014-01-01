@@ -23,6 +23,7 @@
 #include "Utils/AERingBuffer.h"
 #include "android/activity/XBMCApp.h"
 #include "settings/Settings.h"
+#include "settings/AdvancedSettings.h"
 #if defined(HAS_LIBAMCODEC)
 #include "utils/AMLUtils.h"
 #endif
@@ -84,7 +85,7 @@ bool CAESinkAUDIOTRACK::Initialize(AEAudioFormat &format, std::string &device)
   m_lastFormat  = format;
   m_format      = format;
 
-  if (AE_IS_RAW(m_format.m_dataFormat))
+  if (AE_IS_RAW(m_format.m_dataFormat) && g_advancedSettings.m_libMediaPassThroughHack )
     m_passthrough = true;
   else
     m_passthrough = false;
@@ -130,7 +131,7 @@ bool CAESinkAUDIOTRACK::Initialize(AEAudioFormat &format, std::string &device)
                               (CAEUtil::DataFormatToBits(AE_FMT_S16LE) / 8);
   m_min_frames              = min_buffer_size / m_sink_frameSize;
   m_audiotrackbuffer_sec    = (double)m_min_frames / (double)m_format.m_sampleRate;
-  m_at_jni                  = new CJNIAudioTrack( CJNIAudioManager::STREAM_MUSIC,
+  m_at_jni                  = new CJNIAudioTrack( m_passthrough ? CJNIAudioManager::STREAM_VOICE_CALL : CJNIAudioManager::STREAM_MUSIC,
                                                   m_format.m_sampleRate,
                                                   CJNIAudioFormat::CHANNEL_OUT_STEREO,
                                                   CJNIAudioFormat::ENCODING_PCM_16BIT,
@@ -247,7 +248,11 @@ void CAESinkAUDIOTRACK::EnumerateDevicesEx(AEDeviceInfoList &list, bool force)
   m_info.m_dataFormats.clear();
   m_info.m_sampleRates.clear();
 
-  m_info.m_deviceType = AE_DEVTYPE_PCM;
+  if ( g_advancedSettings.m_libMediaPassThroughHack == true )
+  	m_info.m_deviceType = AE_DEVTYPE_IEC958;
+  else
+  	m_info.m_deviceType = AE_DEVTYPE_PCM;
+  	
 #if defined(HAS_LIBAMCODEC)
   // AML devices can do passthough
   if (aml_present())
