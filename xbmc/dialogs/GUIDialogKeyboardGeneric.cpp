@@ -165,7 +165,7 @@ bool CGUIDialogKeyboardGeneric::OnAction(const CAction &action)
     	SetCursorPos(0);
     	break;
     case XBMCVK_END:
-	    SetCursorPos(m_strEdit.GetLength());
+	    SetCursorPos(m_strEdit.size());
     	break;
     case XBMCVK_LEFT:
     	MoveCursor( -1);
@@ -178,7 +178,7 @@ bool CGUIDialogKeyboardGeneric::OnAction(const CAction &action)
     	OnOK();
     	break;
     case XBMCVK_DELETE:
-		if (GetCursorPos() < m_strEdit.GetLength())
+		if (GetCursorPos() < (int)m_strEdit.size())
 		{
 			MoveCursor(1);
 			Backspace();
