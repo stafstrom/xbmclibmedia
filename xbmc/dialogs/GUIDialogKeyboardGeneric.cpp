@@ -152,7 +152,7 @@ bool CGUIDialogKeyboardGeneric::OnAction(const CAction &action)
   {
     OnPasteClipboard();
   }
-  else if (action.GetID() >= KEY_VKEY && action.GetID() < KEY_ASCII) ||
+  else if ( (action.GetID() >= KEY_VKEY && action.GetID() < KEY_ASCII) ||
   			(action.GetButtonCode() >= KEY_VKEY && action.GetButtonCode() < KEY_ASCII) )
   { // input from the keyboard (vkey, not ascii)
     if (!m_strEditing.empty())
